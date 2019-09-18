@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Instagram Embed API - Augustus - Let's Write</title>
+    <link rel="canonical" href="https://letswrite.tw/instagram-embedding/">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+      body {
+        background: #F5F5F5;
+      }
+      .container {
+        padding-top: 30px;
+        padding-bottom: 30px;
+      }
+      .w-480 {
+        margin: 0 auto;
+        padding-right: 12px;
+        padding-left: 12px;
+        max-width: 504px;
+      }
+      .fixed-bottom {
+        position: fixed;
+        left: 16px;
+        bottom: 0;
+        max-width: 320px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="row fixed-bottom">
+      <div class="col">
+        <div class="alert alert-info" role="alert">
+          Let's Write 筆記文：<br/>
+          <a href="https://letswrite.tw/instagram-embedding/" target="_blank">Instagram Embedding 抓iframe高度及三種大小圖片</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="app" class="container">
+
+      <div class="row">
+        <div class="col">
+          <h1 class="h2 text-center">Instagram Embedding 抓 iframe 高度及3種大小圖片</h1>
+        </div>
+      </div>
+
+      <hr class="mb-5">
+
+      <div class="row w-480 no-gutters">
+        <div class="col">
+          <h2 class="h4 mb-3">貼上Instagram網址</h2>
+          <div class="form-group">
+            <input type="url" class="form-control" :class="{ 'is-invalid': error }" @input="checkUrl(url)" v-model="url">
+            <div class="invalid-feedback" v-if="error">輸入的網址不是Instagram格式</div>
+            <small class="form-text text-muted">例如：https://www.instagram.com/p/BmFde7_AElb/</small>
+          </div>
+        </div>
+      </div>
+
+      <hr class="w-480 mb-3">
+
+      <div class="row w-480 no-gutters">
+        <div class="col">
+          <h2 class="h4 mb-3">這邊看iframe樣子</h2>
+          <div class="mb-3" v-html="iframe"></div>
+        </div>
+      </div>
+
+      <hr class="w-480 mb-3">
+
+      <div class="row w-480 no-gutters">
+
+        <div class="col-12 mb-3">
+          <h2 class="h4 mb-3">這邊看3種尺寸的圖</h2>
+          <h6>點擊連到原圖</h6>
+        </div>
+
+        <!-- img small -->
+        <div class="col-12 mb-3" v-if="img.s !== ''">
+          <h3 class="h6">Small</h3>
+          <a :href="img.s" target="_blank">
+            <img class="img-fluid img-thumbnail" :src="img.s">
+          </a>
+        </div>
+
+        <!-- img medium -->
+        <div class="col-12 mb-3" v-if="img.m !== ''">
+          <h3 class="h6">Medium</h3>
+          <a :href="img.m" target="_blank">
+            <img class="img-fluid img-thumbnail" :src="img.m">
+          </a>
+        </div>
+
+        <!-- img large -->
+        <div class="col-12 mb-3" v-if="img.l !== ''">
+          <h3 class="h6">Large</h3>
+          <a :href="img.l" target="_blank">
+            <img class="img-fluid img-thumbnail" :src="img.l">
+          </a>
+        </div>
+      </div>
+
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    <script src="https://www.instagram.com/embed.js"></script>
+    <script>
+      const IG = new Vue({
+        el: '#app',
+        data: {
+          url: '', // Instagram url
+          iframe: '', // iframe code
+          img: {
+            s: '', // small
+            m: '', // medium
+            l: '' // large
+          },
+          error: false, // url格式是否有錯
+          // 以下RegEx來源 https://sharedmemorydump.net/embedding-instagram-posts
+          instagramCheck: /(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|instagr.am)\/[p]\/([A-Za-z0-9-_]*)\//g
+        },
+        methods: {
+          checkUrl(url) {
+            // 先判斷網址是不是IG格式
+            if(url.match(this.instagramCheck)) {
+              this.error = false;
+              this.IG_iframe(url);
+              this.IG_thumbnail(url);
+            } else {
+              this.error = true;
+            }
+          },
+          // 更新iframe的html
+          IG_iframe(url) {
+            fetch('https://api.instagram.com/oembed?url=' + url)
+              .then(res => res.json())
+              .then(result => {
+                this.iframe = result.html;
+                setTimeout(instgrm.Embeds.process, 400);
+              })
+          },
+          // 抓po文圖片
+          IG_thumbnail(url) {
+            // 有?就拆掉
+            url.indexOf('?') > -1 ? url = url.split('?')[0] : url = url;
+            fetch(url + 'media/?size=t').then(res => this.img.s = res.url);
+            fetch(url + 'media/?size=m').then(res => this.img.m = res.url);
+            fetch(url + 'media/?size=l').then(res => this.img.l = res.url);
+          }
+        }
+      })
+    </script>
+
+  </body>
+</html>
