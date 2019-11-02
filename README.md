@@ -1,6 +1,6 @@
-# medium-instagram-embed
+# letswrite-instagram-embed
 Instagram Embedding 抓iframe高度及3種大小圖片
 
-Demo：[https://auguston.github.io/letswrite-instagram-embed/](https://auguston.github.io/letswrite-instagram-embed/)
+Demo：<https://letswritetw.github.io/letswrite-instagram-embed/>
 
 教學文：[Let's Write](https://letswrite.tw/instagram-embedding/)
